@@ -18,7 +18,10 @@ const client = new Client({
 
 const app = express();
 app.get("/", (req, res) => res.send("Bot is alive!"));
-app.listen(3000, () => console.log("🌐 Pingサーバー起動中..."));
+
+// Railwayではprocess.env.PORTが指定される
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🌐 Pingサーバー起動中 on port ${PORT}...`));
 
 // ==== 定数 ====
 const TOKEN = process.env.TOKEN;
@@ -37,7 +40,7 @@ function createButtonRow() {
     new ButtonBuilder()
       .setCustomId("退勤")
       .setLabel("退勤")
-      .setStyle(ButtonStyle.Danger), // ✅ カンマ削除！
+      .setStyle(ButtonStyle.Danger)
   );
 }
 
@@ -47,7 +50,7 @@ async function postButtons() {
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (lastMessage) {
       try {
-        await lastMessage.delete(); // 古いボタンを削除
+        await lastMessage.delete();
       } catch (_) {}
     }
     lastMessage = await channel.send({
@@ -68,7 +71,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isButton()) return;
 
   const discordId = interaction.user.id;
-  const type = interaction.customId; // '出勤' or '退勤'
+  const type = interaction.customId;
 
   await interaction.reply({
     content: `${type}を記録しました！`,
@@ -85,7 +88,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 client.once(Events.ClientReady, () => {
   console.log(`✅ Bot is ready! Logged in as ${client.user.tag}`);
-  postButtons(); // 起動時にも投稿
+  postButtons();
 });
 
 client.login(TOKEN);
